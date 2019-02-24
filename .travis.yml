@@ -1,0 +1,40 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t sheshar/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run sheshar/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t sheshar/multi-client ./client
+  - docker build -t sheshar/multi-nginx ./nginx
+  - docker build -t sheshar/multi-server ./server 
+  - docker build -t sheshar/multi-worker ./worker
+
+  # Log in to docker CLI 
+
+  - echo "$DOCKER_PASSWORD" | docker login -u  "$DOCKER_ID" --password-stdin
+ # - docker login -u  "$DOCKER_ID" -p "$DOCKER_PASSWORD" 
+
+# take those images and push them to docker hub
+
+  - docker push sheshar/multi-client
+  - docker push sheshar/multi-nginx
+  - docker push sheshar/multi-server
+  - docker push sheshar/multi-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: eu-west-2
+  app: multi-dockerr
+  env: MultiDocker-env
+  bucket_name: elasticbeanstalk-eu-west-2-534904142428
+  bucket_path: docker-multi
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: $AWS_SECRET_KEY
