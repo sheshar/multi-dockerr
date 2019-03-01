@@ -13,14 +13,14 @@
        "name": "server",
        "image": "sheshar/multi-server",
        "hostname": "api",
-       "essential": false
+       "essential": false,
        "memory": 128
      },
      {
        "name": "worker",
        "image": "sheshar/multi-worker",
        "hostname": "worker",
-       "essential": false
+       "essential": false,
        "memory": 128
      },
      {
@@ -34,7 +34,7 @@
             "containerPort": 80
           }
          ],
-         "links": ["clinet", "server"] 
+         "links": ["clinet", "server"],
          "memory": 128
      }
    ]
